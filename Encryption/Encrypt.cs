@@ -16,6 +16,8 @@ namespace Encryption
     {
         byte[] fileKey;
         byte[] fileIV;
+        byte[] imgKey;
+        byte[] imgIV;
         public Encrypt()
         {
             InitializeComponent();
@@ -32,11 +34,10 @@ namespace Encryption
 
         public Image ByteToImage(byte[] byteArray)
         {
-            using (var ms = new MemoryStream(byteArray))
-            {
-                Image returnImage = Image.FromStream(ms);
-                return returnImage;
-            }
+            MemoryStream ms = new MemoryStream(byteArray);    
+            
+            return Image.FromStream(ms);
+
         }
         // funksie om foto te enkripteer
         private void EncryptPicture(byte[] key, byte[] IV)
@@ -53,8 +54,9 @@ namespace Encryption
             try
             {
                 Image newImage;
+                Image encryptedImage;
 
-                openFile.ShowDialog();
+                
 
                 if (openFile.ShowDialog() == DialogResult.OK)
                 {
@@ -80,17 +82,30 @@ namespace Encryption
                                 {
                                     swEncrypt.Write(image);
                                     MessageBox.Show("Yes");
-                                    newImage = ByteToImage(msEncrypt.ToArray());
-                                    MessageBox.Show("Test");
+                                    
+                                }
+                                MessageBox.Show(Encoding.Default.GetString(image.ToArray()));
+                                encryptedImage = ByteToImage(msEncrypt.ToArray());
+                                MessageBox.Show("Test");
+                                
+                                try
+                                {
+                                    if (encryptedImage != null)
+                                    {
+                                        encryptedImage.Save(fileName);
+                                        MessageBox.Show("Image encrypted");
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    MessageBox.Show("There was a problem saving the file." +
+                                        "Check the file permissions.");
                                 }
 
-                                
-                                
 
                             }
 
-                            newImage.Save(fileName);
-                            MessageBox.Show("Image encrypted");
+                            
                         }
                     }
 
@@ -263,7 +278,7 @@ namespace Encryption
             {
                 if(rbEncrypt.Checked)
                 {
-                    EncryptPicture(fileKey, fileIV);
+                    EncryptPicture(imgKey, imgIV);
                 }
             }
 
@@ -297,8 +312,8 @@ namespace Encryption
             using (Aes myAes = Aes.Create())
             {
 
-                fileKey = myAes.Key;
-                fileIV = myAes.IV;
+                imgKey = myAes.Key;
+                imgIV = myAes.IV;
 
             }
         }
