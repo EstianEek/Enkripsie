@@ -36,6 +36,8 @@
             this.gbED = new System.Windows.Forms.GroupBox();
             this.rbDecrypt = new System.Windows.Forms.RadioButton();
             this.rbEncrypt = new System.Windows.Forms.RadioButton();
+            this.txtKey = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.gbED.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -121,11 +123,29 @@
             this.rbEncrypt.Text = "Encrypt";
             this.rbEncrypt.UseVisualStyleBackColor = true;
             // 
+            // txtKey
+            // 
+            this.txtKey.Location = new System.Drawing.Point(140, 85);
+            this.txtKey.Name = "txtKey";
+            this.txtKey.Size = new System.Drawing.Size(133, 20);
+            this.txtKey.TabIndex = 5;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(65, 88);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(31, 13);
+            this.label1.TabIndex = 6;
+            this.label1.Text = "Key: ";
+            // 
             // Encrypt
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.txtKey);
             this.Controls.Add(this.gbED);
             this.Controls.Add(this.rbRAR);
             this.Controls.Add(this.rbTXT);
@@ -149,5 +169,7 @@
         private System.Windows.Forms.GroupBox gbED;
         private System.Windows.Forms.RadioButton rbDecrypt;
         private System.Windows.Forms.RadioButton rbEncrypt;
+        private System.Windows.Forms.TextBox txtKey;
+        private System.Windows.Forms.Label label1;
     }
 }

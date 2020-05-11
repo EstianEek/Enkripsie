@@ -127,195 +127,94 @@ namespace Encryption
 
 
         // funksie om textfile te enkripteer
-        private void EncryptFile(byte[] key, byte[] IV)
+        private void EncryptFile(byte[] key)
         {
-            MessageBox.Show(fileKey + " " + fileIV);
-
-            if (key == null || key.Length <= 0)
+            StreamReader inputFile;
+            byte[] text;
+            if(openFile.ShowDialog() == DialogResult.OK)
             {
-                throw new ArgumentNullException("Key");
-            }
-            if(IV == null || IV.Length <= 0)
-            {
-                throw new ArgumentNullException("IV");
-            }
-
-            
-
-            try
-            {
-                StreamReader inputFile;
+                byte[] IV = Encoding.ASCII.GetBytes("abcdefghabcdefgh");
+                inputFile = File.OpenText(openFile.FileName);
+                string fileName = openFile.FileName;
                 
-                openFile.ShowDialog();
-
-                if (openFile.ShowDialog() == DialogResult.OK)
-                {
-                    inputFile = File.OpenText(openFile.FileName);
-                    string fileName = openFile.FileName;
-
-                    string text = inputFile.ReadToEnd();
-
-                    inputFile.Close();
-
-                    MessageBox.Show(text);
-
-                    using (Aes aesAlg = Aes.Create())
-                    {
-                        aesAlg.Key = key;
-                        aesAlg.IV = IV;
-
-                        ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-
-                        using (MemoryStream msEncrypt = new MemoryStream())
-                        {
-                            using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                            {
-                                using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                                {
-                                    swEncrypt.Write(text);
-                                }
-                                
-                                
-                                StreamWriter outputFile;
-                                outputFile = File.CreateText(fileName);
-                                outputFile.Write(Encoding.Default.GetString(msEncrypt.ToArray()));
-                                outputFile.Close();
-                            }
-                        }
-                    }
-
-                    MessageBox.Show("Encryption Done");
-
-                }
-                else
-                {
-                    MessageBox.Show("Cannot open file");
-                }
-
-               
-            }
-            catch
-            {
-                MessageBox.Show("Operation canceled");
-            }
-
             
+                text = Encoding.ASCII.GetBytes(inputFile.ReadToEnd());
+                inputFile.Close();
+                SymmetricAlgorithm aesCSP = new AesCryptoServiceProvider();
+                aesCSP.BlockSize = 128;
+                aesCSP.KeySize = 256;
+                aesCSP.Key = key;
+                aesCSP.IV = IV;
+                aesCSP.Padding = PaddingMode.PKCS7;
+                aesCSP.Mode = CipherMode.CFB;
+                ICryptoTransform encryptor = aesCSP.CreateEncryptor(aesCSP.Key, aesCSP.IV);
+                byte[] encrypted = encryptor.TransformFinalBlock(text, 0, text.Length);
+
+                StreamWriter outputFile;
+                outputFile = File.CreateText(fileName);
+                outputFile.Write(Encoding.ASCII.GetString(encrypted));
+                outputFile.Close();
+            }
         }
 
-
         // funksie om textfile te dekripteer
-        private void DecryptFile(byte[] key, byte[] IV)
+        private void DecryptFile(byte[] key)
         {
-            MessageBox.Show(fileKey + " " + fileIV);
-            if (key == null || key.Length <= 0)
+            StreamReader inputFile;
+            byte[] text;
+            if (openFile.ShowDialog() == DialogResult.OK)
             {
-                throw new ArgumentNullException("Key");
-            }
-            if (IV == null || IV.Length <= 0)
-            {
-                throw new ArgumentNullException("IV");
-            }
+                byte[] IV = Encoding.ASCII.GetBytes("abcdefghabcdefgh");
+                inputFile = File.OpenText(openFile.FileName);
+                string fileName = openFile.FileName;
+                string plaintext = inputFile.ReadToEnd();
 
-            try
-            {
-                StreamReader inputFile;
+                text = Encoding.ASCII.GetBytes(plaintext);
+                MessageBox.Show(Encoding.ASCII.GetString(text));
+                inputFile.Close();
+                SymmetricAlgorithm aesCSP = new AesCryptoServiceProvider();
+                aesCSP.BlockSize = 128;
+                aesCSP.KeySize = 256;
+                aesCSP.Key = key;
+                aesCSP.IV = IV;
+                aesCSP.Padding = PaddingMode.PKCS7;
+                aesCSP.Mode = CipherMode.CFB;
+                ICryptoTransform decryptor = aesCSP.CreateDecryptor(aesCSP.Key, aesCSP.IV);
 
-                openFile.ShowDialog();
+                byte[] decrypted = decryptor.TransformFinalBlock(text, 0, text.Length);
+                decryptor.Dispose();
 
-                if (openFile.ShowDialog() == DialogResult.OK)
-                {
-                    inputFile = File.OpenText(openFile.FileName);
-                    string fileName = openFile.FileName;
-                    MessageBox.Show(fileName);
-
-                    string text = inputFile.ReadToEnd();
-
-                    inputFile.Close();
-
-                    MessageBox.Show(text);
-
-                    byte[] cipher = Encoding.ASCII.GetBytes(text);
-                    MessageBox.Show(Encoding.Default.GetString(cipher.ToArray()));
-
-                    using (Aes aesAlg = Aes.Create())
-                    {
-                        aesAlg.Key = key;
-                        aesAlg.IV = IV;
-
-                        ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-
-                        using (MemoryStream msDecrypt = new MemoryStream(cipher))
-                        {
-                            using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                            {
-                                using (StreamReader srDecrypt = new StreamReader(csDecrypt))
-                                {
-                                    text = srDecrypt.ReadToEnd();
-                                    MessageBox.Show(text);
-                                    
-                                }
-                                StreamWriter outputFile;
-                                MessageBox.Show("Test");
-                                outputFile = File.CreateText(fileName);
-
-                                outputFile.Write(text);
-
-                                outputFile.Close();
-                            }
-                        }
-                    }
-                }
-            }           
-            catch
-            {
-                MessageBox.Show("Operation cancelled");
+                StreamWriter outputFile;
+                outputFile = File.CreateText(fileName);
+                outputFile.Write(Encoding.ASCII.GetString(decrypted));
+                outputFile.Close();
             }
         }
 
         private void button1_Click(object sender, EventArgs e)
-        { 
-            if(rbPhoto.Checked)
-            {
-                if(rbEncrypt.Checked)
-                {
-                    EncryptPicture(imgKey, imgIV);
-                }
-            }
+        {
+             
+            byte[] key = Encoding.ASCII.GetBytes(txtKey.Text.ToArray()) ;
 
-            else if(rbTXT.Checked)
+            if (rbTXT.Checked && rbEncrypt.Checked)
             {
-                if (rbEncrypt.Checked)
-                {
-                    EncryptFile(fileKey, fileIV);
-                }
-                else if (rbDecrypt.Checked)
-                {
-                    DecryptFile(fileKey, fileIV);
-                }
+                EncryptFile(key);
+            }
+            else if(rbTXT.Checked && rbDecrypt.Checked)
+            {
+                DecryptFile(key);
             }
             
         }
 
         private void rbTXT_CheckedChanged(object sender, EventArgs e)
         {
-            using (Aes myAes = Aes.Create())
-            {
-
-                fileKey = myAes.Key;
-                fileIV = myAes.IV;
-
-            }
+           
         }
 
         private void rbPhoto_CheckedChanged(object sender, EventArgs e)
         {
-            using (Aes myAes = Aes.Create())
-            {
-
-                imgKey = myAes.Key;
-                imgIV = myAes.IV;
-
-            }
+           
         }
     }
 }
